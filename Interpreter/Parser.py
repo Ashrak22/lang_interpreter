@@ -72,19 +72,38 @@ class Parser(object):
 			self.eat(IDENT)
 			self.eat(RIGHTB)
 			return ASTPrint(IDENT, name)
+	
+	def boolexpr(self):
+		if self.current_token.type == IDENT:
+			left = ASTIdentNode(self.current_token.value)
+			self.eat(IDENT)
+		else:
+			left = ASTIntNode(self.current_token.value)
+			self.eat(INT)
+		
+		op = self.current_token.value
+		self.eat(BOOLOP)
+		
+		if self.current_token.type == IDENT:
+			right = ASTIdentNode(self.current_token.value)
+			self.eat(IDENT)
+		else:
+			right = ASTIntNode(self.current_token.value)
+			self.eat(INT)
+		return ASTBoolOpNode(left, op, right)
 
 	def parse(self):
 		roots = []
 		while not self.lexer.is_end():
 			if self.current_token.type == VAR:
 				roots.append(self.setvar())
-				self.eat(EOC)
 			elif self.current_token.type == PRINT:
 				roots.append(self.print())
-				self.eat(EOC)
-			elif self.current_token.type == INT:
+			elif self.current_token.type == INT and (self.lexer.peak().type == MULOP or self.lexer.peak().type == ADDOP):
 				roots.append(self.expr())
-				self.eat(EOC)
+			elif (self.current_token.type == INT or self.current_token.type == IDENT) and (self.lexer.peak().type == BOOLOP):
+				roots.append(self.boolexpr())
 			elif self.current_token.type == IDENT:
 				roots.append(self.setvar())
+			self.eat(EOC)
 		return roots

@@ -1,5 +1,6 @@
 INT, ADDOP, MULOP, EOF, LEFTB, RIGHTB = "INT", "ADDOP", "MULOP", "EOF", "LB", "RB"
 VAR, IDENT, EQUALS, EOC, PRINT = "VAR", "IDENT", "EQUALS", "EOC", "PRINT"
+BOOLOP = "BOOLOP"
 
 class Token(object):
 	def __init__(self, type, value):
@@ -28,7 +29,12 @@ class Lexer(object):
 
 	def is_mulop(self):
 		return self.current_char == '*' or self.current_char == '/'
-
+	def is_boolop(self):
+		result = self.current_char == '<' or self.current_char == '>'
+		result = result or (self.expression[self.position] == '=' and self.expression[self.position + 1] == '=')
+		result = result or (self.expression[self.position] == '!' and self.expression[self.position + 1] == '=')
+		return result
+		
 	def whitespace(self):
 		while self.current_char is not None and self.current_char.isspace():
 			self.advance()
@@ -52,8 +58,27 @@ class Lexer(object):
 		else:
 			return Token(IDENT, result)
 	
+	def boolop(self):
+		op = ""
+		result = None
+		while self.current_char == '=' or self.current_char == '!':
+			op = op + self.current_char
+			self.advance()
+		if op != "":
+			result = Token(BOOLOP, op)
+		else:
+			result = Token(BOOLOP, self.current_char)
+			self.advance()
+		return result
+
 	def is_end(self):
 		return self.current_char is None
+	
+	def peak(self):
+		position = self.position
+		tok = self.get_next_token()
+		self.position = position
+		return tok
 			
 	def get_next_token(self):
 		self.whitespace()
@@ -64,10 +89,12 @@ class Lexer(object):
 			return Token(INT, self.integer())
 		elif self.current_char.isalpha():
 			return self.identifier()
+		elif self.is_boolop():
+			return self.boolop()
 		elif self.is_addop():
 			tok = Token(ADDOP, self.current_char)
 		elif self.is_mulop():
-			tok = Token(MULOP, self.current_char)
+			tok = Token(MULOP, self.current_char)	
 		elif self.current_char == '(':
 			tok = Token(LEFTB, '(')
 		elif self.current_char == ')':

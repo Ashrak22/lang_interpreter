@@ -5,13 +5,16 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>ca9f60a1-8f0f-4809-bef5-ba4427192ab4</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Interpreter.py</StartupFile>
+    <StartupFile>main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Interpreter</Name>
     <RootNamespace>Interpreter</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <InterpreterId>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</InterpreterId>
+    <InterpreterVersion>3.5</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,7 +25,34 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AST\AST.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Command.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\Expr.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AST\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Interpreter.py" />
+    <Compile Include="Lexer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parser.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{2af0f10d-7135-4994-9156-5d01c9c11b7e}\3.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AST\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

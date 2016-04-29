@@ -48,11 +48,18 @@ class Interpreter(object):
 			right = self.vars[node.right.value]
 
 		return self.boolops[node.op](left, right)
+	
+	def typeCheck(self, old, new):
+		if type(old) != type(new):
+			raise TypeError('Type mismatch')
 
 	def interpret(self, nodes):
 		for node in nodes:
 			if isinstance(node, ASTVAR):
-				self.vars[node.identifier] = self.evalIntExpr(node.value)
+				value = self.evalIntExpr(node.value)
+				if node.identifier in self.vars.keys():
+					self.typeCheck(self.vars[node.identifier], value)				
+				self.vars[node.identifier] = value
 			elif isinstance(node, ASTPrint):
 				if node.type == INT:
 					print(node.value)

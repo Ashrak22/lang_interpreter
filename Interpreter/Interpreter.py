@@ -8,7 +8,7 @@ class Interpreter(object):
 	def __init__(self):
 		self.vars = {}
 		self.intops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv }
-		self.boolops = {"==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne}
+		self.cmpops = {"==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne}
 
 	def run(self):
 		while True:
@@ -37,7 +37,7 @@ class Interpreter(object):
 		else:
 			return 0
 
-	def evalBoolExp(self, node):
+	def evalCompareExp(self, node):
 		if isinstance(node.left, ASTIntNode):
 			left = node.left.value
 		elif isinstance(node.left, ASTIdentNode):
@@ -47,7 +47,7 @@ class Interpreter(object):
 		elif isinstance(node.right, ASTIdentNode):
 			right = self.vars[node.right.value]
 
-		return self.boolops[node.op](left, right)
+		return self.cmpops[node.op](left, right)
 	
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
@@ -65,6 +65,6 @@ class Interpreter(object):
 					print(node.value)
 				elif node.type == IDENT:
 					print(self.vars[node.value])
-			elif isinstance(node, ASTBoolOpNode):
-				print(self.evalBoolExp(node))
+			elif isinstance(node, ASTCmpOpNode):
+				print(self.evalCompareExp(node))
 

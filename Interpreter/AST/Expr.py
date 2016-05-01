@@ -13,7 +13,7 @@ class ASTIntOpNode(object):
 		self.left = left
 		
 
-class ASTBoolOpNode(object):
+class ASTCmpOpNode(object):
 	def __init__(self, left, op, right):
 		self.right = right
 		self.op = op

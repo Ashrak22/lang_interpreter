@@ -60,7 +60,9 @@ class Parser(object):
 			return ASTVAR(name, None)
 		elif self.current_token.type == EQUALS:
 			self.eat(EQUALS)
-			return ASTVAR(name, self.expr())
+			peak = self.lexer.peak()
+			if peak.type == ADDOP or peak.type == MULOP:
+				return ASTVAR(name, self.expr())
 		else:
 			raise SyntaxError('Wrong Syntax')
 
@@ -73,7 +75,7 @@ class Parser(object):
 			self.eat(RIGHTB)
 			return ASTPrint(IDENT, name)
 	
-	def boolexpr(self):
+	def compareexpr(self):
 		if self.current_token.type == IDENT:
 			left = ASTIdentNode(self.current_token.value)
 			self.eat(IDENT)
@@ -82,7 +84,7 @@ class Parser(object):
 			self.eat(INT)
 		
 		op = self.current_token.value
-		self.eat(BOOLOP)
+		self.eat(CMPOP)
 		
 		if self.current_token.type == IDENT:
 			right = ASTIdentNode(self.current_token.value)
@@ -90,7 +92,7 @@ class Parser(object):
 		else:
 			right = ASTIntNode(self.current_token.value)
 			self.eat(INT)
-		return ASTBoolOpNode(left, op, right)
+		return ASTCmpOpNode(left, op, right)
 
 	def parse(self):
 		roots = []
@@ -101,8 +103,8 @@ class Parser(object):
 				roots.append(self.print())
 			elif self.current_token.type == INT and (self.lexer.peak().type == MULOP or self.lexer.peak().type == ADDOP):
 				roots.append(self.expr())
-			elif (self.current_token.type == INT or self.current_token.type == IDENT) and (self.lexer.peak().type == BOOLOP):
-				roots.append(self.boolexpr())
+			elif (self.current_token.type == INT or self.current_token.type == IDENT) and (self.lexer.peak().type == CMPOP):
+				roots.append(self.compareexpr())
 			elif self.current_token.type == IDENT:
 				roots.append(self.setvar())
 			self.eat(EOC)

@@ -1,6 +1,6 @@
 INT, ADDOP, MULOP, EOF, LEFTB, RIGHTB = "INT", "ADDOP", "MULOP", "EOF", "LB", "RB"
 VAR, IDENT, EQUALS, EOC, PRINT = "VAR", "IDENT", "EQUALS", "EOC", "PRINT"
-BOOLOP = "BOOLOP"
+CMPOP = "CMPOP"
 
 class Token(object):
 	def __init__(self, type, value):
@@ -33,6 +33,8 @@ class Lexer(object):
 		result = self.current_char == '<' or self.current_char == '>'
 		result = result or (self.expression[self.position] == '=' and self.expression[self.position + 1] == '=')
 		result = result or (self.expression[self.position] == '!' and self.expression[self.position + 1] == '=')
+		result = result or (self.expression[self.position] == '&' and self.expression[self.position + 1] == '&')
+		result = result or (self.expression[self.position] == '|' and self.expression[self.position + 1] == '|') 
 		return result
 		
 	def whitespace(self):
@@ -61,13 +63,13 @@ class Lexer(object):
 	def boolop(self):
 		op = ""
 		result = None
-		while self.current_char == '=' or self.current_char == '!':
+		while self.current_char == '=' or self.current_char == '!' or self.current_char == '&' or self.current_char == '|':
 			op = op + self.current_char
 			self.advance()
 		if op != "":
-			result = Token(BOOLOP, op)
+			result = Token(CMPOP, op)
 		else:
-			result = Token(BOOLOP, self.current_char)
+			result = Token(CMPOP, self.current_char)
 			self.advance()
 		return result
 

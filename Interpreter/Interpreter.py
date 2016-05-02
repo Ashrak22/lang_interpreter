@@ -10,13 +10,14 @@ class Interpreter(object):
 		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne }
 
 	def run(self):
+		tst = Lexer("")
+		prs = Parser(tst)
 		while True:
 			try:
 				text = input('mpr> ')
 			except EOFError:
 				break;
-			tst = Lexer(text)
-			prs = Parser(tst)
+			tst.append(text)
 			try:
 				self.interpret(prs.parse())
 			except ValueError as err:
@@ -25,6 +26,8 @@ class Interpreter(object):
 				print(err)
 			except TypeError as err:
 				print(err)
+			except KeyError as err:
+				print("Variable {var} not defined!".format(var=err))
 
 	def evalIntExpr(self, node):
 		if isinstance(node, ASTIntNode):

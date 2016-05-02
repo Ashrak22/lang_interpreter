@@ -7,8 +7,7 @@ import operator
 class Interpreter(object):
 	def __init__(self):
 		self.vars = {}
-		self.intops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv }
-		self.cmpops = {"==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne}
+		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne }
 
 	def run(self):
 		while True:
@@ -24,16 +23,27 @@ class Interpreter(object):
 				print(err)
 			except SyntaxError as err:
 				print(err)
+			except TypeError as err:
+				print(err)
 
 	def evalIntExpr(self, node):
 		if isinstance(node, ASTIntNode):
 			return node.value
 		elif isinstance(node, ASTIdentNode):
 			return self.vars[node.value]
-		elif isinstance(node, ASTIntOpNode):
+		elif isinstance(node, ASTExpNode):
 			left = self.evalIntExpr(node.left)
 			right = self.evalIntExpr(node.right)
-			return self.intops[node.op](left, right)
+			self.typeCheck(left, right)
+			if node.op == "&&":
+				self.typeCheck(left, True)
+				return left and right
+			elif node.op == "||":
+				self.typeCheck(left, True)
+				return left and right
+			else:
+				self.typeCheck(left, 1)
+				return self.ops[node.op](left, right)
 		else:
 			return 0
 
@@ -65,6 +75,4 @@ class Interpreter(object):
 					print(node.value)
 				elif node.type == IDENT:
 					print(self.vars[node.value])
-			elif isinstance(node, ASTCmpOpNode):
-				print(self.evalCompareExp(node))
 

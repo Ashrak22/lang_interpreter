@@ -16,7 +16,7 @@ class Parser(object):
 	def term(self):
 		if self.current_token.type == LEFTB:
 			self.eat(LEFTB)
-			result = self.expr()
+			result = self.boolop()
 			self.eat(RIGHTB)
 		elif self.current_token.type == IDENT:
 			result = ASTIdentNode(self.current_token.value)
@@ -32,7 +32,7 @@ class Parser(object):
 		if self.current_token.type == MULOP:
 			op = self.current_token.value
 			self.eat(MULOP)
-			root = ASTIntOpNode(result, op, self.mulop())
+			root = ASTExpNode(result, op, self.mulop())
 			return root
 		return result
 	
@@ -43,7 +43,27 @@ class Parser(object):
 		if self.current_token.type == ADDOP:
 			op = self.current_token.value
 			self.eat(ADDOP)
-			root = ASTIntOpNode(result, op, self.expr())
+			root = ASTExpNode(result, op, self.expr())
+			return root
+		return result
+
+	def cmpop(self):
+		result = self.expr()
+		root = None
+		if self.current_token.type == CMPOP:
+			op = self.current_token.value
+			self.eat(CMPOP)
+			root = ASTExpNode(result, op, self.cmpop())
+			return root
+		return result
+
+	def boolop(self):
+		result = self.cmpop()
+		root = None
+		if self.current_token.type == BOOLOP:
+			op = self.current_token.value
+			self.eat(BOOLOP)
+			root = ASTExpNode(result, op, self.boolop())
 			return root
 		return result
 
@@ -60,9 +80,7 @@ class Parser(object):
 			return ASTVAR(name, None)
 		elif self.current_token.type == EQUALS:
 			self.eat(EQUALS)
-			peak = self.lexer.peak()
-			if peak.type == ADDOP or peak.type == MULOP:
-				return ASTVAR(name, self.expr())
+			return ASTVAR(name, self.boolop())
 		else:
 			raise SyntaxError('Wrong Syntax')
 
@@ -74,25 +92,6 @@ class Parser(object):
 			self.eat(IDENT)
 			self.eat(RIGHTB)
 			return ASTPrint(IDENT, name)
-	
-	def compareexpr(self):
-		if self.current_token.type == IDENT:
-			left = ASTIdentNode(self.current_token.value)
-			self.eat(IDENT)
-		else:
-			left = ASTIntNode(self.current_token.value)
-			self.eat(INT)
-		
-		op = self.current_token.value
-		self.eat(CMPOP)
-		
-		if self.current_token.type == IDENT:
-			right = ASTIdentNode(self.current_token.value)
-			self.eat(IDENT)
-		else:
-			right = ASTIntNode(self.current_token.value)
-			self.eat(INT)
-		return ASTCmpOpNode(left, op, right)
 
 	def parse(self):
 		roots = []
@@ -103,8 +102,6 @@ class Parser(object):
 				roots.append(self.print())
 			elif self.current_token.type == INT and (self.lexer.peak().type == MULOP or self.lexer.peak().type == ADDOP):
 				roots.append(self.expr())
-			elif (self.current_token.type == INT or self.current_token.type == IDENT) and (self.lexer.peak().type == CMPOP):
-				roots.append(self.compareexpr())
 			elif self.current_token.type == IDENT:
 				roots.append(self.setvar())
 			self.eat(EOC)

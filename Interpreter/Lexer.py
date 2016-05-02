@@ -1,6 +1,6 @@
 INT, ADDOP, MULOP, EOF, LEFTB, RIGHTB = "INT", "ADDOP", "MULOP", "EOF", "LB", "RB"
 VAR, IDENT, EQUALS, EOC, PRINT = "VAR", "IDENT", "EQUALS", "EOC", "PRINT"
-CMPOP = "CMPOP"
+CMPOP, BOOLOP = "CMPOP", "BOOLOP"
 
 class Token(object):
 	def __init__(self, type, value):
@@ -29,14 +29,16 @@ class Lexer(object):
 
 	def is_mulop(self):
 		return self.current_char == '*' or self.current_char == '/'
-	def is_boolop(self):
+	def is_cmpop(self):
 		result = self.current_char == '<' or self.current_char == '>'
 		result = result or (self.expression[self.position] == '=' and self.expression[self.position + 1] == '=')
 		result = result or (self.expression[self.position] == '!' and self.expression[self.position + 1] == '=')
-		result = result or (self.expression[self.position] == '&' and self.expression[self.position + 1] == '&')
+		return result
+	def is_boolop(self):
+		result = (self.expression[self.position] == '&' and self.expression[self.position + 1] == '&')
 		result = result or (self.expression[self.position] == '|' and self.expression[self.position + 1] == '|') 
 		return result
-		
+			
 	def whitespace(self):
 		while self.current_char is not None and self.current_char.isspace():
 			self.advance()
@@ -60,7 +62,7 @@ class Lexer(object):
 		else:
 			return Token(IDENT, result)
 	
-	def boolop(self):
+	def cmpop(self):
 		op = ""
 		result = None
 		while self.current_char == '=' or self.current_char == '!' or self.current_char == '&' or self.current_char == '|':
@@ -72,6 +74,12 @@ class Lexer(object):
 			result = Token(CMPOP, self.current_char)
 			self.advance()
 		return result
+
+	def boolop(self):
+		op = self.expression[self.position] + self.expression[self.position + 1]
+		self.advance()
+		self.advance()
+		return Token(BOOLOP, op)
 
 	def is_end(self):
 		return self.current_char is None
@@ -91,6 +99,8 @@ class Lexer(object):
 			return Token(INT, self.integer())
 		elif self.current_char.isalpha():
 			return self.identifier()
+		elif self.is_cmpop():
+			return self.cmpop()
 		elif self.is_boolop():
 			return self.boolop()
 		elif self.is_addop():

@@ -95,6 +95,9 @@ class Parser(object):
 
 	def parse(self):
 		roots = []
+		if self.current_token.type == EOF:
+			self.eat(EOF)
+
 		while not self.lexer.is_end():
 			if self.current_token.type == VAR:
 				roots.append(self.setvar())

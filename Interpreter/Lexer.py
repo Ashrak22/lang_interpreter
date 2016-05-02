@@ -14,14 +14,25 @@ class Token(object):
 class Lexer(object):
 	def __init__(self, expr):
 		self.expression = expr
-		self.position = 0
-		self.current_char = self.expression[0]
+		self.position = -1
+		self.advance()
+	
+	def append(self, text):
+		if self.expression == "":
+			self.expression = text
+			self.position = self.position-1;
+		else:
+			self.expression = self.expression + '\r\n' + text
+			self.position = self.position+2-1;
+		self.advance()
 
 	def advance(self):
 		self.position = self.position + 1
 		if self.position >= len(self.expression):
+			self.position = len(self.expression)
 			self.current_char = None
 		else:
+			
 			self.current_char = self.expression[self.position]
 
 	def is_addop(self):

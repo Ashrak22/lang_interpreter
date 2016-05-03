@@ -25,7 +25,9 @@ class Lexer(object):
 			self.expression = self.expression + '\r\n' + text
 			self.position = self.position+2-1;
 		self.advance()
-
+	def flush(self):
+		self.position = len(self.expression)
+		self.current_char = None
 	def advance(self):
 		self.position = self.position + 1
 		if self.position >= len(self.expression):

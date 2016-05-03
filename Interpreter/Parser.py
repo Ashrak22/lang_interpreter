@@ -11,7 +11,10 @@ class Parser(object):
 		if self.current_token.type == type:
 			self.current_token = self.lexer.get_next_token()
 		else:
-			raise ValueError("Found {found}. Expected {token}".format(found=self.current_token.type, token=type))
+			str = "Found {found}. Expected {token}".format(found=self.current_token.type, token=type)
+			self.lexer.flush()
+			self.current_token = Token(EOF, None)
+			raise ValueError(str)
 		
 	def term(self):
 		if self.current_token.type == LEFTB:
@@ -53,7 +56,7 @@ class Parser(object):
 		if self.current_token.type == CMPOP:
 			op = self.current_token.value
 			self.eat(CMPOP)
-			root = ASTExpNode(result, op, self.cmpop())
+			root = ASTExpNode(result, op, self.expr())
 			return root
 		return result
 

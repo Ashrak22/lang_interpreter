@@ -12,9 +12,18 @@ class Interpreter(object):
 	def run(self):
 		tst = Lexer("")
 		prs = Parser(tst)
+		compoundopen = False;
 		while True:
 			try:
+				text = ""
 				text = input('mpr> ')
+				while compoundopen or (text != "" and text[-1] != ';' and text[-1] != '}'):
+					inpt = input('... ')
+					if '{' in inpt:
+						compoundopen = True
+					if '}' in inpt:
+						compoundopen = False;
+					text += inpt
 			except EOFError:
 				break;
 			tst.append(text)

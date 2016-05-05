@@ -17,10 +17,10 @@ class Parser(object):
 			raise ValueError(str)
 		
 	def term(self):
-		if self.current_token.type == LEFTB:
-			self.eat(LEFTB)
+		if self.current_token.type == BRACKETL:
+			self.eat(BRACKETL)
 			result = self.boolop()
-			self.eat(RIGHTB)
+			self.eat(BRACKETR)
 		elif self.current_token.type == IDENT:
 			result = ASTIdentNode(self.current_token.value)
 			self.eat(IDENT)
@@ -89,11 +89,11 @@ class Parser(object):
 
 	def print(self):
 		self.eat(PRINT)
-		self.eat(LEFTB)
+		self.eat(BRACKETL)
 		if self.current_token.type == IDENT:
 			name = self.current_token.value
 			self.eat(IDENT)
-			self.eat(RIGHTB)
+			self.eat(BRACKETR)
 			return ASTPrint(IDENT, name)
 
 	def parse(self):

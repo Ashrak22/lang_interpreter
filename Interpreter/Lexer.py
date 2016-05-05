@@ -1,21 +1,22 @@
-INT, ADDOP, MULOP, EOF, LEFTB, RIGHTB = "INT", "ADDOP", "MULOP", "EOF", "LB", "RB"
-VAR, IDENT, EQUALS, EOC = "VAR", "IDENT", "EQUALS", "EOC"
-CMPOP, BOOLOP = "CMPOP", "BOOLOP"
-PRINT, IF = "PRINT", "IF"
-
-class Token(object):
-	def __init__(self, type, value):
-		self.type = type
-		self.value = value
-	def __str__(self):
-		return "Token <{type}, {value}>".format(type=self.type, value=self.value)
-	def __repr__(self):
-		return self.__str__()
+from Token import *
 
 RESERVED_WORDS = {
-	VAR : Token(VAR, "var"),
-	PRINT : Token(PRINT, "print"),
-	IF : Token(IF, "if") 
+	VAR		: Token(VAR, "var"),
+	PRINT	: Token(PRINT, "print"),
+	IF		: Token(IF, "if"),
+	ELIF	: Token(ELIF, "elif"),
+	ELSE	: Token(ELSE, "else")
+	}
+
+SPECIAL_CHARS = {
+	';'	: Token(EOC, None),
+	'('	: Token(BRACKETL, '('),
+	')'	: Token(BRACKETR, ')'),
+	'{' : Token(COMPOUNDL, '{'),
+	'}'	: Token(COMPOUNDR, '}'),
+	'[' : Token(SQUAREL, '['),
+	']'	: Token(SQUARER, ']'),
+	'=' : Token(EQUALS, '=')
 	}
 
 class Lexer(object):
@@ -122,15 +123,10 @@ class Lexer(object):
 			tok = Token(ADDOP, self.current_char)
 		elif self.is_mulop():
 			tok = Token(MULOP, self.current_char)	
-		elif self.current_char == '(':
-			tok = Token(LEFTB, '(')
-		elif self.current_char == ')':
-			tok = Token(RIGHTB, ')')
-		elif self.current_char == ';':
-			tok = Token(EOC, None)
-		elif self.current_char == '=':
-			tok = Token(EQUALS, '=')
 		else:
-			raise ValueError('Invalid character encountered')
+			try:
+				tok = SPECIAL_CHARS[self.current_char]
+			except Exception as err:
+				raise ValueError('Invalid character encountered')
 		self.advance()
 		return tok

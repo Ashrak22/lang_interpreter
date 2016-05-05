@@ -96,7 +96,29 @@ class Parser(object):
 			self.eat(BRACKETR)
 			return ASTPrint(IDENT, name)
 
-	def parse(self):
+	def compound(self):
+		if self.current_token.type == COMPOUNDL:
+			self.eat(COMPOUNDL)
+			result = self.parse()
+		else:
+			result = self.parse(True)
+		return result
+
+	def conditional(self):
+		if self.current_token.type == IF:
+			self.eat(IF)
+		else: 
+			self.eat(ELIF)
+		condition = self.boolop()
+		true = self.compound()
+		if self.current_token.type == ELIF:
+			false = self.conditional()
+		else:
+			self.eat(ELSE)
+			false = self.compound()
+		return ASTIF(condition, true, false)
+		
+	def parse(self, singlec = False):
 		roots = []
 		if self.current_token.type == EOF:
 			self.eat(EOF)
@@ -110,5 +132,13 @@ class Parser(object):
 				roots.append(self.expr())
 			elif self.current_token.type == IDENT:
 				roots.append(self.setvar())
-			self.eat(EOC)
+			elif self.current_token.type == IF:
+				roots.append(self.conditional())
+			if self.current_token.type == COMPOUNDR:
+				self.eat(COMPOUNDR)
+				return roots
+			else:
+				self.eat(EOC)
+			if singlec:
+				return roots
 		return roots

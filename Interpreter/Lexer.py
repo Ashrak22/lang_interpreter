@@ -1,6 +1,7 @@
 INT, ADDOP, MULOP, EOF, LEFTB, RIGHTB = "INT", "ADDOP", "MULOP", "EOF", "LB", "RB"
-VAR, IDENT, EQUALS, EOC, PRINT = "VAR", "IDENT", "EQUALS", "EOC", "PRINT"
+VAR, IDENT, EQUALS, EOC = "VAR", "IDENT", "EQUALS", "EOC"
 CMPOP, BOOLOP = "CMPOP", "BOOLOP"
+PRINT, IF = "PRINT", "IF"
 
 class Token(object):
 	def __init__(self, type, value):
@@ -10,6 +11,12 @@ class Token(object):
 		return "Token <{type}, {value}>".format(type=self.type, value=self.value)
 	def __repr__(self):
 		return self.__str__()
+
+RESERVED_WORDS = {
+	VAR : Token(VAR, "var"),
+	PRINT : Token(PRINT, "print"),
+	IF : Token(IF, "if") 
+	}
 
 class Lexer(object):
 	def __init__(self, expr):
@@ -68,12 +75,7 @@ class Lexer(object):
 		while self.current_char is not None and (self.current_char.isalpha() or self.current_char == '_'):
 			result += self.current_char
 			self.advance()
-		if result.upper() == VAR:
-			return Token(VAR, None)
-		elif result.upper() == PRINT:
-			return Token(PRINT, None)
-		else:
-			return Token(IDENT, result)
+		return RESERVED_WORDS.get(result.upper(), Token(IDENT, result))
 	
 	def cmpop(self):
 		op = ""

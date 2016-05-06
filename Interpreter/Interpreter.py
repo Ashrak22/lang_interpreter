@@ -63,17 +63,16 @@ class Interpreter(object):
 		else:
 			return 0
 
-	def evalCompareExp(self, node):
-		if isinstance(node.left, ASTIntNode):
-			left = node.left.value
-		elif isinstance(node.left, ASTIdentNode):
-			left = self.vars[node.left.value]
-		if isinstance(node.right, ASTIntNode):
-			right = node.right.value
-		elif isinstance(node.right, ASTIdentNode):
-			right = self.vars[node.right.value]
-
-		return self.cmpops[node.op](left, right)
+	def evalIf(self, node):
+		value = self.evalIntExpr(node.condition)
+		self.typeCheck(value, True)
+		if value:
+			self.interpret(node.true)
+		else:
+			if isinstance(node.false, ASTIF):
+				self.evalIf(node.false)
+			else:
+				self.interpret(node.false)
 	
 	def typeCheck(self, old, new):
 		if type(old) != type(new):

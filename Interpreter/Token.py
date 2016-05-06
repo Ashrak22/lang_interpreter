@@ -1,5 +1,5 @@
 #Reserved words
-VAR, PRINT, IF, ELIF, ELSE = "VAR", "PRINT", "IF", "ELIF", "ELSE"
+VAR, PRINT, IF, ELIF, ELSE, FOR, WHILE = "VAR", "PRINT", "IF", "ELIF", "ELSE", "FOR", "WHILE"
 #Operations
 ADDOP, MULOP, CMPOP, BOOLOP = "ADDOP", "MULOP", "CMPOP", "BOOLOP"
 #Terminals

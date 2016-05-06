@@ -12,17 +12,21 @@ class Interpreter(object):
 	def run(self):
 		tst = Lexer("")
 		prs = Parser(tst)
-		compoundopen = False;
+		
 		while True:
 			try:
+				compound = 0
+				tst.flush()
 				text = ""
 				text = input('mpr> ')
-				while compoundopen or (text != "" and text[-1] != ';' and text[-1] != '}'):
+				if '{' in text:
+					compound += 1
+				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
 					inpt = input('... ')
 					if '{' in inpt:
-						compoundopen = True
+						compound += 1
 					if '}' in inpt:
-						compoundopen = False;
+						compound -= 1
 					text += inpt
 			except EOFError:
 				break;
@@ -59,17 +63,16 @@ class Interpreter(object):
 		else:
 			return 0
 
-	def evalCompareExp(self, node):
-		if isinstance(node.left, ASTIntNode):
-			left = node.left.value
-		elif isinstance(node.left, ASTIdentNode):
-			left = self.vars[node.left.value]
-		if isinstance(node.right, ASTIntNode):
-			right = node.right.value
-		elif isinstance(node.right, ASTIdentNode):
-			right = self.vars[node.right.value]
-
-		return self.cmpops[node.op](left, right)
+	def evalIf(self, node):
+		value = self.evalIntExpr(node.condition)
+		self.typeCheck(value, True)
+		if value:
+			self.interpret(node.true)
+		else:
+			if isinstance(node.false, ASTIF):
+				self.evalIf(node.false)
+			else:
+				self.interpret(node.false)
 	
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
@@ -87,4 +90,6 @@ class Interpreter(object):
 					print(node.value)
 				elif node.type == IDENT:
 					print(self.vars[node.value])
+			elif isinstance(node, ASTIF):
+				self.evalIf(node)
 

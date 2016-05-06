@@ -98,7 +98,6 @@ class Parser(object):
 
 	def compound(self):
 		if self.current_token.type == COMPOUNDL:
-			self.eat(COMPOUNDL)
 			result = self.parse()
 		else:
 			result = self.parse(True)
@@ -122,7 +121,8 @@ class Parser(object):
 		roots = []
 		if self.current_token.type == EOF:
 			self.eat(EOF)
-
+		if not singlec:
+			self.eat(COMPOUNDL)
 		while not self.lexer.is_end():
 			if self.current_token.type == VAR:
 				roots.append(self.setvar())
@@ -141,4 +141,5 @@ class Parser(object):
 				self.eat(EOC)
 			if singlec:
 				return roots
+		self.eat(COMPOUNDR)
 		return roots

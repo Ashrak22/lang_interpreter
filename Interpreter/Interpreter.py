@@ -12,19 +12,20 @@ class Interpreter(object):
 	def run(self):
 		tst = Lexer("")
 		prs = Parser(tst)
-		compound = 0;
+		
 		while True:
 			try:
+				compound = 0
 				tst.flush()
 				text = ""
 				text = input('mpr> ')
-				if COMPOUNDL in text:
+				if '{' in text:
 					compound += 1
 				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
 					inpt = input('... ')
-					if COMPOUNDL in inpt:
+					if '{' in inpt:
 						compound += 1
-					if COMPOUNDR in inpt:
+					if '}' in inpt:
 						compound -= 1
 					text += inpt
 			except EOFError:
@@ -90,4 +91,6 @@ class Interpreter(object):
 					print(node.value)
 				elif node.type == IDENT:
 					print(self.vars[node.value])
+			elif isinstance(node, ASTIF):
+				self.evalIf(node)
 

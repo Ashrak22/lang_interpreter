@@ -1,14 +1,3 @@
-#Reserved words
-VAR, PRINT, IF, ELIF, ELSE, FOR, WHILE = "VAR", "PRINT", "IF", "ELIF", "ELSE", "FOR", "WHILE"
-#Operations
-ADDOP, MULOP, CMPOP, BOOLOP = "ADDOP", "MULOP", "CMPOP", "BOOLOP"
-#Terminals
-INT, IDENT = "INT", "IDENT"
-#Special characters
-INT, BRACKETL, BRACKETR, COMPOUNDL, COMPOUNDR, EQUALS, SQUARER, SQUAREL = "INT", "LB", "RB", "CL", "CR", "EQUALS", "SR", "SL"
-#EOX
-EOF, EOC = "EOF", "EOC"
-
 class Token(object):
 	def __init__(self, type, value):
 		self.type = type

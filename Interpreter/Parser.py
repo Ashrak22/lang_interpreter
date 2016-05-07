@@ -116,6 +116,12 @@ class Parser(object):
 			self.eat(ELSE)
 			false = self.compound()
 		return ASTIF(condition, true, false)
+	
+	def whileloop(self):
+		self.eat(WHILE)
+		condition = self.boolop()
+		body = self.compound()
+		return ASTWhile(condition, body)
 		
 	def parse(self, singlec = False):
 		roots = []
@@ -124,16 +130,16 @@ class Parser(object):
 		if not singlec:
 			self.eat(COMPOUNDL)
 		while not self.lexer.is_end():
-			if self.current_token.type == VAR:
+			if self.current_token.type == VAR or self.current_token.type == IDENT:
 				roots.append(self.setvar())
 			elif self.current_token.type == PRINT:
 				roots.append(self.print())
 			elif self.current_token.type == INT and (self.lexer.peak().type == MULOP or self.lexer.peak().type == ADDOP):
 				roots.append(self.expr())
-			elif self.current_token.type == IDENT:
-				roots.append(self.setvar())
 			elif self.current_token.type == IF:
 				roots.append(self.conditional())
+			elif self.current_token.type == WHILE:
+				roots.append(self.whilelloop())
 			if self.current_token.type == COMPOUNDR:
 				self.eat(COMPOUNDR)
 				return roots

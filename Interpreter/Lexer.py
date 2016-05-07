@@ -49,11 +49,6 @@ class Lexer(object):
 			
 			self.current_char = self.expression[self.position]
 
-	def is_addop(self):
-		return self.current_char == '+' or self.current_char == '-'
-
-	def is_mulop(self):
-		return self.current_char == '*' or self.current_char == '/'
 	def is_cmpop(self):
 		result = self.current_char == '<' or self.current_char == '>'
 		result = result or (self.expression[self.position] == '=' and self.expression[self.position + 1] == '=')
@@ -122,15 +117,11 @@ class Lexer(object):
 		elif self.is_cmpop():
 			return self.cmpop()
 		elif self.is_boolop():
-			return self.boolop()
-		elif self.is_addop():
-			tok = Token(ADDOP, self.current_char)
-		elif self.is_mulop():
-			tok = Token(MULOP, self.current_char)	
+			return self.boolop()	
 		else:
 			try:
 				tok = SPECIAL_CHARS[self.current_char]
 			except Exception as err:
-				raise ValueError('Invalid character encountered')
+				raise ValueError('Invalid character encountered or operator')
 		self.advance()
 		return tok

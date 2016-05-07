@@ -32,7 +32,7 @@ class Interpreter(object):
 				break;
 			tst.append(text)
 			try:
-				self.interpret(prs.parse())
+				self.interpret(prs.compound())
 			except ValueError as err:
 				print(err)
 			except SyntaxError as err:

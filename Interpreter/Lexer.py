@@ -16,7 +16,11 @@ SPECIAL_CHARS = {
 	'}'	: Token(COMPOUNDR, '}'),
 	'[' : Token(SQUAREL, '['),
 	']'	: Token(SQUARER, ']'),
-	'=' : Token(EQUALS, '=')
+	'=' : Token(EQUALS, '='),
+	'+'	: Token(ADDOP, '+'),
+	'-' : Token(ADDOP, '-'),
+	'*'	: Token(MULOP, '*'),
+	'/'	: Token(MULOP, '/')
 	}
 
 class Lexer(object):

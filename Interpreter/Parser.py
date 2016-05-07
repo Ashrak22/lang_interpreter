@@ -17,10 +17,10 @@ class Parser(object):
 			raise ValueError(str)
 		
 	def term(self):
-		if self.current_token.type == LEFTB:
-			self.eat(LEFTB)
+		if self.current_token.type == BRACKETL:
+			self.eat(BRACKETL)
 			result = self.boolop()
-			self.eat(RIGHTB)
+			self.eat(BRACKETR)
 		elif self.current_token.type == IDENT:
 			result = ASTIdentNode(self.current_token.value)
 			self.eat(IDENT)
@@ -89,18 +89,40 @@ class Parser(object):
 
 	def print(self):
 		self.eat(PRINT)
-		self.eat(LEFTB)
+		self.eat(BRACKETL)
 		if self.current_token.type == IDENT:
 			name = self.current_token.value
 			self.eat(IDENT)
-			self.eat(RIGHTB)
+			self.eat(BRACKETR)
 			return ASTPrint(IDENT, name)
 
-	def parse(self):
+	def compound(self):
+		if self.current_token.type == COMPOUNDL:
+			result = self.parse()
+		else:
+			result = self.parse(True)
+		return result
+
+	def conditional(self):
+		if self.current_token.type == IF:
+			self.eat(IF)
+		else: 
+			self.eat(ELIF)
+		condition = self.boolop()
+		true = self.compound()
+		if self.current_token.type == ELIF:
+			false = self.conditional()
+		else:
+			self.eat(ELSE)
+			false = self.compound()
+		return ASTIF(condition, true, false)
+		
+	def parse(self, singlec = False):
 		roots = []
 		if self.current_token.type == EOF:
 			self.eat(EOF)
-
+		if not singlec:
+			self.eat(COMPOUNDL)
 		while not self.lexer.is_end():
 			if self.current_token.type == VAR:
 				roots.append(self.setvar())
@@ -110,5 +132,14 @@ class Parser(object):
 				roots.append(self.expr())
 			elif self.current_token.type == IDENT:
 				roots.append(self.setvar())
-			self.eat(EOC)
+			elif self.current_token.type == IF:
+				roots.append(self.conditional())
+			if self.current_token.type == COMPOUNDR:
+				self.eat(COMPOUNDR)
+				return roots
+			else:
+				self.eat(EOC)
+			if singlec:
+				return roots
+		self.eat(COMPOUNDR)
 		return roots

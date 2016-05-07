@@ -7,3 +7,9 @@ class ASTPrint(object):
 	def __init__(self, type, value):
 		self.type = type
 		self.value = value
+
+class ASTIF(object):
+	def __init__(self, condition, true, false):
+		self.condition = condition
+		self.true = true
+		self.false = false

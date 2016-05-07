@@ -11,10 +11,3 @@ class ASTExpNode(object):
 		self.right = right
 		self.op = op
 		self.left = left
-		
-
-#class ASTCmpOpNode(object):
-#	def __init__(self, left, op, right):
-#		self.right = right
-#		self.op = op
-#		self.left = left

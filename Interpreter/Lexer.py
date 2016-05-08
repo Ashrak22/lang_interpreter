@@ -19,20 +19,28 @@ RESERVED_WORDS = {
 	FOR		: Token(FOR, "for"),
 	WHILE	: Token(WHILE, "while")
 	}
-
+SPECIAL_CHAR_LIST = [';', '(', ')', '{', '}', '[', ']', '=', '+', '-', '*', '/', '<', '>', '!', '&', '|']
 SPECIAL_CHARS = {
-	';'	: Token(EOC, None),
-	'('	: Token(BRACKETL, '('),
-	')'	: Token(BRACKETR, ')'),
-	'{' : Token(COMPOUNDL, '{'),
-	'}'	: Token(COMPOUNDR, '}'),
-	'[' : Token(SQUAREL, '['),
-	']'	: Token(SQUARER, ']'),
-	'=' : Token(EQUALS, '='),
-	'+'	: Token(ADDOP, '+'),
-	'-' : Token(ADDOP, '-'),
-	'*'	: Token(MULOP, '*'),
-	'/'	: Token(MULOP, '/')
+	';'		: Token(EOC, None),
+	'('		: Token(BRACKETL, '('),
+	')'		: Token(BRACKETR, ')'),
+	'{'		: Token(COMPOUNDL, '{'),
+	'}'		: Token(COMPOUNDR, '}'),
+	'['		: Token(SQUAREL, '['),
+	']'		: Token(SQUARER, ']'),
+	'='		: Token(EQUALS, '='),
+	'+'		: Token(ADDOP, '+'),
+	'-'		: Token(ADDOP, '-'),
+	'*'		: Token(MULOP, '*'),
+	'/'		: Token(MULOP, '/'),
+	'>'		: Token(CMPOP, '>'),
+	'>='	: Token(CMPOP, '>='),
+	'<'		: Token(CMPOP, '<'),
+	'<='	: Token(CMPOP, '<='),
+	'=='	: Token(CMPOP, '=='),
+	'!='	: Token(CMPOP, '!='),
+	'&&'	: Token(BOOLOP, '&&'),
+	'||'	: Token(BOOLOP, '||')
 	}
 
 class Lexer(object):
@@ -49,27 +57,18 @@ class Lexer(object):
 			self.expression = self.expression + '\r\n' + text
 			self.position = self.position+2-1;
 		self.advance()
+	
 	def flush(self):
 		self.position = len(self.expression)
 		self.current_char = None
+	
 	def advance(self):
 		self.position = self.position + 1
 		if self.position >= len(self.expression):
 			self.position = len(self.expression)
 			self.current_char = None
-		else:
-			
+		else:		
 			self.current_char = self.expression[self.position]
-
-	def is_cmpop(self):
-		result = self.current_char == '<' or self.current_char == '>'
-		result = result or (self.expression[self.position] == '=' and self.expression[self.position + 1] == '=')
-		result = result or (self.expression[self.position] == '!' and self.expression[self.position + 1] == '=')
-		return result
-	def is_boolop(self):
-		result = (self.expression[self.position] == '&' and self.expression[self.position + 1] == '&')
-		result = result or (self.expression[self.position] == '|' and self.expression[self.position + 1] == '|') 
-		return result
 			
 	def whitespace(self):
 		while self.current_char is not None and self.current_char.isspace():
@@ -89,24 +88,13 @@ class Lexer(object):
 			self.advance()
 		return RESERVED_WORDS.get(result.upper(), Token(IDENT, result))
 	
-	def cmpop(self):
+	def specialchars(self):
 		op = ""
 		result = None
-		while self.current_char == '=' or self.current_char == '!' or self.current_char == '&' or self.current_char == '|':
+		while self.current_char in SPECIAL_CHAR_LIST:
 			op = op + self.current_char
 			self.advance()
-		if op != "":
-			result = Token(CMPOP, op)
-		else:
-			result = Token(CMPOP, self.current_char)
-			self.advance()
-		return result
-
-	def boolop(self):
-		op = self.expression[self.position] + self.expression[self.position + 1]
-		self.advance()
-		self.advance()
-		return Token(BOOLOP, op)
+		return SPECIAL_CHARS[op]
 
 	def is_end(self):
 		return self.current_char is None
@@ -125,15 +113,9 @@ class Lexer(object):
 		elif self.current_char.isnumeric():
 			return Token(INT, self.integer())
 		elif self.current_char.isalpha():
-			return self.identifier()
-		elif self.is_cmpop():
-			return self.cmpop()
-		elif self.is_boolop():
-			return self.boolop()	
+			return self.identifier()	
 		else:
 			try:
-				tok = SPECIAL_CHARS[self.current_char]
+				 return self.specialchars()
 			except Exception as err:
-				raise ValueError('Invalid character encountered or operator')
-		self.advance()
-		return tok
+				raise ValueError('Invalid character or operator encountered')

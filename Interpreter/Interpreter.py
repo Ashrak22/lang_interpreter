@@ -7,7 +7,7 @@ import operator
 class Interpreter(object):
 	def __init__(self):
 		self.vars = {}
-		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne }
+		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne, "<=": operator.le, ">=": operator.ge }
 
 	def run(self):
 		tst = Lexer("")

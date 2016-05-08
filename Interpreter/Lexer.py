@@ -1,11 +1,23 @@
 from Token import *
+#Reserved words
+VAR, PRINT, IF, ELIF, ELSE, FOR, WHILE = "VAR", "PRINT", "IF", "ELIF", "ELSE", "FOR", "WHILE"
+#Operations
+ADDOP, MULOP, CMPOP, BOOLOP = "ADDOP", "MULOP", "CMPOP", "BOOLOP"
+#Terminals
+INT, IDENT = "INT", "IDENT"
+#Special characters
+INT, BRACKETL, BRACKETR, COMPOUNDL, COMPOUNDR, EQUALS, SQUARER, SQUAREL = "INT", "LB", "RB", "CL", "CR", "EQUALS", "SR", "SL"
+#EOX
+EOF, EOC = "EOF", "EOC"
 
 RESERVED_WORDS = {
 	VAR		: Token(VAR, "var"),
 	PRINT	: Token(PRINT, "print"),
 	IF		: Token(IF, "if"),
 	ELIF	: Token(ELIF, "elif"),
-	ELSE	: Token(ELSE, "else")
+	ELSE	: Token(ELSE, "else"),
+	FOR		: Token(FOR, "for"),
+	WHILE	: Token(WHILE, "while")
 	}
 
 SPECIAL_CHARS = {

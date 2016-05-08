@@ -13,3 +13,8 @@ class ASTIF(object):
 		self.condition = condition
 		self.true = true
 		self.false = false
+
+class ASTWhile(object):
+	def __init__(self, condition, body):
+		self.condition = condition
+		self.body = body

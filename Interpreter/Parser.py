@@ -139,7 +139,7 @@ class Parser(object):
 			elif self.current_token.type == IF:
 				roots.append(self.conditional())
 			elif self.current_token.type == WHILE:
-				roots.append(self.whilelloop())
+				roots.append(self.whileloop())
 			if self.current_token.type == COMPOUNDR:
 				self.eat(COMPOUNDR)
 				return roots

@@ -74,6 +74,13 @@ class Interpreter(object):
 			else:
 				self.interpret(node.false)
 	
+	def evalWhile(self, node):
+		condition = self.evalIntExpr(node.condition)
+		self.typeCheck(condition, True)
+		while condition:
+			self.interpret(node.body)
+			condition = self.evalIntExpr(node.condition)
+
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
 			raise TypeError('Type mismatch')
@@ -92,4 +99,6 @@ class Interpreter(object):
 					print(self.vars[node.value])
 			elif isinstance(node, ASTIF):
 				self.evalIf(node)
+			elif isinstance(node, ASTWhile):
+				self.evalWhile(node)
 

@@ -19,7 +19,9 @@ RESERVED_WORDS = {
 	FOR		: Token(FOR, "for"),
 	WHILE	: Token(WHILE, "while")
 	}
+
 SPECIAL_CHAR_LIST = [';', '(', ')', '{', '}', '[', ']', '=', '+', '-', '*', '/', '<', '>', '!', '&', '|']
+
 SPECIAL_CHARS = {
 	';'		: Token(EOC, None),
 	'('		: Token(BRACKETL, '('),

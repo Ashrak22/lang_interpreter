@@ -119,9 +119,24 @@ class Parser(object):
 	
 	def whileloop(self):
 		self.eat(WHILE)
+		self.eat(BRACKETL)
 		condition = self.boolop()
+		self.eat(BRACKETR)
 		body = self.compound()
 		return ASTWhile(condition, body)
+
+	def forloop(self):
+		self.eat(FOR)
+		self.eat(BRACKETL)
+		init = self.setvar()
+		self.eat(EOC)
+		condition = self.boolop()
+		self.eat(EOC)
+		step = self.setvar()
+		self.eat(BRACKETR)
+		body = self.compound()
+		return ASTFor(init, condition, step, body)
+
 		
 	def parse(self, singlec = False):
 		roots = []
@@ -140,6 +155,8 @@ class Parser(object):
 				roots.append(self.conditional())
 			elif self.current_token.type == WHILE:
 				roots.append(self.whileloop())
+			elif self.current_token.type == FOR:
+				roots.append(self.forloop())
 			if self.current_token.type == COMPOUNDR:
 				self.eat(COMPOUNDR)
 				return roots

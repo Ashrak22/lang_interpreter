@@ -97,6 +97,8 @@ class Parser(object):
 			return ASTPrint(IDENT, name)
 
 	def compound(self):
+		while self.current_token is None:
+			self.current_token = self.lexer.get_next_token()
 		if self.current_token.type == COMPOUNDL:
 			result = self.parse()
 		else:

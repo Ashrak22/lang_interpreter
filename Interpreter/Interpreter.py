@@ -6,7 +6,7 @@ import operator
 
 class Interpreter(object):
 	def __init__(self):
-		self.vars = {}
+		self.globals = {}
 		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne, "<=": operator.le, ">=": operator.ge }
 
 	def run(self):
@@ -46,7 +46,7 @@ class Interpreter(object):
 		if isinstance(node, ASTIntNode):
 			return node.value
 		elif isinstance(node, ASTIdentNode):
-			return self.vars[node.value]
+			return self.globals[node.value]
 		elif isinstance(node, ASTExpNode):
 			left = self.evalIntExpr(node.left)
 			right = self.evalIntExpr(node.right)
@@ -56,7 +56,7 @@ class Interpreter(object):
 				return left and right
 			elif node.op == "||":
 				self.typeCheck(left, True)
-				return left and right
+				return left or right
 			else:
 				self.typeCheck(left, 1)
 				return self.ops[node.op](left, right)
@@ -84,21 +84,29 @@ class Interpreter(object):
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
 			raise TypeError('Type mismatch')
+	
+	def evalFor(self, node):
+		localvars = {}
+
+		init = node.init
+
 
 	def interpret(self, nodes):
 		for node in nodes:
 			if isinstance(node, ASTVAR):
 				value = self.evalIntExpr(node.value)
-				if node.identifier in self.vars.keys():
-					self.typeCheck(self.vars[node.identifier], value)				
-				self.vars[node.identifier] = value
+				if node.identifier in self.globals.keys():
+					self.typeCheck(self.globals[node.identifier], value)				
+				self.globals[node.identifier] = value
 			elif isinstance(node, ASTPrint):
 				if node.type == INT:
 					print(node.value)
 				elif node.type == IDENT:
-					print(self.vars[node.value])
+					print(self.globals[node.value])
 			elif isinstance(node, ASTIF):
 				self.evalIf(node)
 			elif isinstance(node, ASTWhile):
 				self.evalWhile(node)
+			elif isinstance(node, ASTFor):
+				self.evalFor(node)
 

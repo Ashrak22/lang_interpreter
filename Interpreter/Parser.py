@@ -155,10 +155,16 @@ class Parser(object):
 				roots.append(self.expr())
 			elif self.current_token.type == IF:
 				roots.append(self.conditional())
+				if(self.current_token.type == EOF):
+					return roots
 			elif self.current_token.type == WHILE:
 				roots.append(self.whileloop())
+				if(self.current_token.type == EOF):
+					return roots
 			elif self.current_token.type == FOR:
 				roots.append(self.forloop())
+				if(self.current_token.type == EOF):
+					return roots
 			if self.current_token.type == COMPOUNDR:
 				self.eat(COMPOUNDR)
 				return roots
@@ -166,5 +172,8 @@ class Parser(object):
 				self.eat(EOC)
 			if singlec:
 				return roots
-		self.eat(COMPOUNDR)
+		if not singlec:
+			self.eat(COMPOUNDR)
+		else:
+			self.eat(EOF)
 		return roots

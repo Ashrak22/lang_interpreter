@@ -80,16 +80,22 @@ class Interpreter(object):
 		while condition:
 			self.interpret(node.body)
 			condition = self.evalIntExpr(node.condition)
+	
+	def evalFor(self, node):
+		nodes = []
+		nodes.append(node.init)
+		self.interpret(nodes)
+		condition = self.evalIntExpr(node.condition)
+		while condition:
+			self.interpret(node.body)
+			nodes = []
+			nodes.append(node.step)
+			self.interpret(nodes)
+			condition = self.evalIntExpr(node.condition)
 
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
 			raise TypeError('Type mismatch')
-	
-	def evalFor(self, node):
-		localvars = {}
-
-		init = node.init
-
 
 	def interpret(self, nodes):
 		for node in nodes:

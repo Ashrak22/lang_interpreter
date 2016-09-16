@@ -7,6 +7,7 @@ import operator
 class Interpreter(object):
 	def __init__(self):
 		self.globals = {}
+		self.depth = 0
 		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne, "<=": operator.le, ">=": operator.ge }
 
 	def run(self):
@@ -24,9 +25,13 @@ class Interpreter(object):
 				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
 					inpt = input('... ')
 					if '{' in inpt:
+						scope = self.getCurrentScope(compound)
+						scope['locals'] = {}
 						compound += 1
 					if '}' in inpt:
 						compound -= 1
+						scope = self.getCurrentScope(compound)
+						scope.pop('locals')
 					text += inpt
 			except EOFError:
 				break;
@@ -97,7 +102,7 @@ class Interpreter(object):
 		if type(old) != type(new):
 			raise TypeError('Type mismatch')
 
-	def interpret(self, nodes):
+	def interpret(self, nodes, scope):
 		for node in nodes:
 			if isinstance(node, ASTVAR):
 				value = self.evalIntExpr(node.value)
@@ -116,3 +121,8 @@ class Interpreter(object):
 			elif isinstance(node, ASTFor):
 				self.evalFor(node)
 
+	def getCurrentScope(self, depth):
+		res = self.globals
+		for i in range(depth-1):
+			res = res['locals']
+		return res;

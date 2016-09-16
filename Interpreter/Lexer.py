@@ -116,7 +116,7 @@ class Lexer(object):
 		self.whitespace()
 
 		if self.current_char is None:
-			tok = Token(EOF, None)
+			return Token(EOF, None)
 		elif self.current_char.isnumeric():
 			return Token(INT, self.integer())
 		elif self.current_char.isalpha():

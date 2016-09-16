@@ -97,6 +97,8 @@ class Parser(object):
 			return ASTPrint(IDENT, name)
 
 	def compound(self):
+		while self.current_token is None:
+			self.current_token = self.lexer.get_next_token()
 		if self.current_token.type == COMPOUNDL:
 			result = self.parse()
 		else:
@@ -116,6 +118,27 @@ class Parser(object):
 			self.eat(ELSE)
 			false = self.compound()
 		return ASTIF(condition, true, false)
+	
+	def whileloop(self):
+		self.eat(WHILE)
+		self.eat(BRACKETL)
+		condition = self.boolop()
+		self.eat(BRACKETR)
+		body = self.compound()
+		return ASTWhile(condition, body)
+
+	def forloop(self):
+		self.eat(FOR)
+		self.eat(BRACKETL)
+		init = self.setvar()
+		self.eat(EOC)
+		condition = self.boolop()
+		self.eat(EOC)
+		step = self.setvar()
+		self.eat(BRACKETR)
+		body = self.compound()
+		return ASTFor(init, condition, step, body)
+
 		
 	def parse(self, singlec = False):
 		roots = []
@@ -124,16 +147,24 @@ class Parser(object):
 		if not singlec:
 			self.eat(COMPOUNDL)
 		while not self.lexer.is_end():
-			if self.current_token.type == VAR:
+			if self.current_token.type == VAR or self.current_token.type == IDENT:
 				roots.append(self.setvar())
 			elif self.current_token.type == PRINT:
 				roots.append(self.print())
 			elif self.current_token.type == INT and (self.lexer.peak().type == MULOP or self.lexer.peak().type == ADDOP):
 				roots.append(self.expr())
-			elif self.current_token.type == IDENT:
-				roots.append(self.setvar())
 			elif self.current_token.type == IF:
 				roots.append(self.conditional())
+				if(self.current_token.type == EOF):
+					return roots
+			elif self.current_token.type == WHILE:
+				roots.append(self.whileloop())
+				if(self.current_token.type == EOF):
+					return roots
+			elif self.current_token.type == FOR:
+				roots.append(self.forloop())
+				if(self.current_token.type == EOF):
+					return roots
 			if self.current_token.type == COMPOUNDR:
 				self.eat(COMPOUNDR)
 				return roots
@@ -141,5 +172,8 @@ class Parser(object):
 				self.eat(EOC)
 			if singlec:
 				return roots
-		self.eat(COMPOUNDR)
+		if not singlec:
+			self.eat(COMPOUNDR)
+		else:
+			self.eat(EOF)
 		return roots

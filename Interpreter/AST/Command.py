@@ -13,3 +13,15 @@ class ASTIF(object):
 		self.condition = condition
 		self.true = true
 		self.false = false
+
+class ASTWhile(object):
+	def __init__(self, condition, body):
+		self.condition = condition
+		self.body = body
+
+class ASTFor(object):
+	def __init__(self, init, condition, step, body):
+		self.init = init
+		self.condition = condition
+		self.step = step
+		self.body = body

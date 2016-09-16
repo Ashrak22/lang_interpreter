@@ -20,7 +20,8 @@ RESERVED_WORDS = {
 	WHILE	: Token(WHILE, "while")
 	}
 
-SPECIAL_CHAR_LIST = [';', '(', ')', '{', '}', '[', ']', '=', '+', '-', '*', '/', '<', '>', '!', '&', '|']
+SPECIAL_CHAR_SINGLE = [';', '(', ')', '{', '}', '[', ']']
+SPECIAL_CHAR_REPEAT = ['=', '+', '-', '*', '/', '<', '>', '!', '&', '|']
 
 SPECIAL_CHARS = {
 	';'		: Token(EOC, None),
@@ -89,11 +90,15 @@ class Lexer(object):
 			result += self.current_char
 			self.advance()
 		return RESERVED_WORDS.get(result.upper(), Token(IDENT, result))
-	
+	def specialchar_single(self):
+		char = self.current_char
+		self.advance()
+		return SPECIAL_CHARS[char]
+
 	def specialchars(self):
 		op = ""
 		result = None
-		while self.current_char in SPECIAL_CHAR_LIST:
+		while self.current_char in SPECIAL_CHAR_REPEAT:
 			op = op + self.current_char
 			self.advance()
 		return SPECIAL_CHARS[op]
@@ -115,7 +120,9 @@ class Lexer(object):
 		elif self.current_char.isnumeric():
 			return Token(INT, self.integer())
 		elif self.current_char.isalpha():
-			return self.identifier()	
+			return self.identifier()
+		elif self.current_char in SPECIAL_CHAR_SINGLE:
+			return self.specialchar_single()
 		else:
 			try:
 				 return self.specialchars()

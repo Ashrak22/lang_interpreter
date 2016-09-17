@@ -7,7 +7,7 @@ import operator
 class Interpreter(object):
 	def __init__(self):
 		self.globals = {}
-		self.depth = 0
+		self.depth = -1
 		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne, "<=": operator.le, ">=": operator.ge }
 
 	def run(self):
@@ -25,13 +25,9 @@ class Interpreter(object):
 				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
 					inpt = input('... ')
 					if '{' in inpt:
-						scope = self.getCurrentScope(compound)
-						scope['locals'] = {}
 						compound += 1
 					if '}' in inpt:
 						compound -= 1
-						scope = self.getCurrentScope(compound)
-						scope.pop('locals')
 					text += inpt
 			except EOFError:
 				break;
@@ -102,27 +98,45 @@ class Interpreter(object):
 		if type(old) != type(new):
 			raise TypeError('Type mismatch')
 
-	def interpret(self, nodes, scope):
+	def interpret(self, nodes):
+		scope = self.getCurrentScope()
+		scope['locals'] = {}
+		self.depth += 1
 		for node in nodes:
 			if isinstance(node, ASTVAR):
 				value = self.evalIntExpr(node.value)
-				if node.identifier in self.globals.keys():
-					self.typeCheck(self.globals[node.identifier], value)				
-				self.globals[node.identifier] = value
+				localscope = self.getScopeByVar(node.identifier)
+				if self.getScopeByVar(node.identifier) != None:
+					self.typeCheck(localscope[node.identifier], value)
+					localscope[node.identifier] = value;
+				else:
+					self.getCurrentScope()[node.identifier] = value
 			elif isinstance(node, ASTPrint):
 				if node.type == INT:
 					print(node.value)
 				elif node.type == IDENT:
-					print(self.globals[node.value])
+					print(self.getScopeByVar(node.value)[node.value])
 			elif isinstance(node, ASTIF):
 				self.evalIf(node)
 			elif isinstance(node, ASTWhile):
 				self.evalWhile(node)
 			elif isinstance(node, ASTFor):
 				self.evalFor(node)
+		if(self.depth >= 0):
+			self.depth -= 1
+			scope = self.getCurrentScope()
+			scope.pop('locals')
 
-	def getCurrentScope(self, depth):
+	def getCurrentScope(self):
 		res = self.globals
-		for i in range(depth-1):
+		for i in range(self.depth):
 			res = res['locals']
 		return res;
+
+	def getScopeByVar(self, identifier):
+		scope = self.globals
+		for i in range(self.depth+1):
+			if identifier in scope.keys():
+				return scope
+			scope = scope['locals']
+		return None

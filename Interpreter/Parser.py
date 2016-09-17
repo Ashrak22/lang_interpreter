@@ -80,10 +80,10 @@ class Parser(object):
 		self.eat(IDENT)
 
 		if self.current_token.type == EOC and create:
-			return ASTVAR(name, None)
+			return ASTVAR(name, None, create)
 		elif self.current_token.type == EQUALS:
 			self.eat(EQUALS)
-			return ASTVAR(name, self.boolop())
+			return ASTVAR(name, self.boolop(), create)
 		else:
 			raise SyntaxError('Wrong Syntax')
 

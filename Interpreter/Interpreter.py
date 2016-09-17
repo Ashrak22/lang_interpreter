@@ -22,6 +22,7 @@ class Interpreter(object):
 				descend = False;
 				text = input('mpr> ')
 				if '{' in text:
+					descend = True;
 					compound += 1
 				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
 					inpt = input('... ')
@@ -108,8 +109,8 @@ class Interpreter(object):
 		for node in nodes:
 			if isinstance(node, ASTVAR):
 				value = self.evalIntExpr(node.value)
-				localscope = self.getScopeByVar(node.identifier)
-				if localscope != None:
+				localscope = self.getCurrentScope()
+				if not node.new:
 					self.typeCheck(localscope[node.identifier], value)
 					localscope[node.identifier] = value;
 				else:
@@ -138,11 +139,14 @@ class Interpreter(object):
 
 	def getScopeByVar(self, identifier):
 		scope = self.globals
-		for i in range(self.depth):
-			if identifier in scope.keys():
-				return scope
-			scope = scope['locals']
+		res = None;
+
 		if identifier in scope.keys():
-			return scope
-		else:
-			return None
+				res = scope;
+
+		for i in range(self.depth):
+			scope = scope['locals']
+			if identifier in scope.keys():
+				res = scope;
+			
+		return res;

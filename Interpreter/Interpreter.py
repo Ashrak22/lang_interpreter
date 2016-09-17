@@ -7,6 +7,7 @@ import operator
 class Interpreter(object):
 	def __init__(self):
 		self.globals = {}
+		self.depth = 0
 		self.ops = { "+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv, "==": operator.eq, ">": operator.gt, "<": operator.lt, "!=": operator.ne, "<=": operator.le, ">=": operator.ge }
 
 	def run(self):
@@ -18,12 +19,15 @@ class Interpreter(object):
 				compound = 0
 				tst.flush()
 				text = ""
+				descend = False;
 				text = input('mpr> ')
 				if '{' in text:
+					descend = True;
 					compound += 1
 				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
 					inpt = input('... ')
 					if '{' in inpt:
+						descend = True;
 						compound += 1
 					if '}' in inpt:
 						compound -= 1
@@ -32,7 +36,7 @@ class Interpreter(object):
 				break;
 			tst.append(text)
 			try:
-				self.interpret(prs.compound())
+				self.interpret(descend, prs.compound())
 			except ValueError as err:
 				print(err)
 			except SyntaxError as err:
@@ -67,52 +71,82 @@ class Interpreter(object):
 		value = self.evalIntExpr(node.condition)
 		self.typeCheck(value, True)
 		if value:
-			self.interpret(node.true)
+			self.interpret(True, node.true)
 		else:
 			if isinstance(node.false, ASTIF):
 				self.evalIf(node.false)
 			else:
-				self.interpret(node.false)
+				self.interpret(True, node.false)
 	
 	def evalWhile(self, node):
 		condition = self.evalIntExpr(node.condition)
 		self.typeCheck(condition, True)
 		while condition:
-			self.interpret(node.body)
+			self.interpret(True, node.body)
 			condition = self.evalIntExpr(node.condition)
 	
 	def evalFor(self, node):
 		nodes = []
 		nodes.append(node.init)
-		self.interpret(nodes)
+		self.interpret(False, nodes)
 		condition = self.evalIntExpr(node.condition)
 		while condition:
-			self.interpret(node.body)
+			self.interpret(True, node.body)
 			nodes = []
 			nodes.append(node.step)
-			self.interpret(nodes)
+			self.interpret(False, nodes)
 			condition = self.evalIntExpr(node.condition)
 
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
 			raise TypeError('Type mismatch')
 
-	def interpret(self, nodes):
+	def interpret(self, descend, nodes):
+		if(descend):
+			scope = self.getCurrentScope()
+			scope['locals'] = {}
+			self.depth += 1
 		for node in nodes:
 			if isinstance(node, ASTVAR):
 				value = self.evalIntExpr(node.value)
-				if node.identifier in self.globals.keys():
-					self.typeCheck(self.globals[node.identifier], value)				
-				self.globals[node.identifier] = value
+				localscope = self.getCurrentScope()
+				if not node.new:
+					self.typeCheck(localscope[node.identifier], value)
+					localscope[node.identifier] = value;
+				else:
+					self.getCurrentScope()[node.identifier] = value
 			elif isinstance(node, ASTPrint):
 				if node.type == INT:
 					print(node.value)
 				elif node.type == IDENT:
-					print(self.globals[node.value])
+					print(self.getScopeByVar(node.value)[node.value])
 			elif isinstance(node, ASTIF):
 				self.evalIf(node)
 			elif isinstance(node, ASTWhile):
 				self.evalWhile(node)
 			elif isinstance(node, ASTFor):
 				self.evalFor(node)
+		if(self.depth >= 0 and descend):
+			self.depth -= 1
+			scope = self.getCurrentScope()
+			scope.pop('locals')
 
+	def getCurrentScope(self):
+		res = self.globals
+		for i in range(self.depth):
+			res = res['locals']
+		return res;
+
+	def getScopeByVar(self, identifier):
+		scope = self.globals
+		res = None;
+
+		if identifier in scope.keys():
+				res = scope;
+
+		for i in range(self.depth):
+			scope = scope['locals']
+			if identifier in scope.keys():
+				res = scope;
+			
+		return res;

@@ -1,7 +1,8 @@
 class ASTVAR(object):
-	def __init__(self, identifier, value):
+	def __init__(self, identifier, value, new):
 		self.identifier = identifier
 		self.value = value
+		self.new = new 
 
 class ASTPrint(object):
 	def __init__(self, type, value):

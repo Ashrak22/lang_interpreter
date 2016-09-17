@@ -34,6 +34,9 @@
     <Compile Include="AST\Expr.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AST\LangObjects.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="AST\__init__.py">
       <SubType>Code</SubType>
     </Compile>

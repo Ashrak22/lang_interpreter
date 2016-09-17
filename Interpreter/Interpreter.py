@@ -25,9 +25,8 @@ class Interpreter(object):
 					descend = True;
 					compound += 1
 				while compound > 0 or (text != "" and text[-1] != ';' and text[-1] != '}'):
-					inpt = input('... ')
+					inpt = input('...  ')
 					if '{' in inpt:
-						descend = True;
 						compound += 1
 					if '}' in inpt:
 						compound -= 1
@@ -50,7 +49,7 @@ class Interpreter(object):
 		if isinstance(node, ASTIntNode):
 			return node.value
 		elif isinstance(node, ASTIdentNode):
-			return self.globals[node.value]
+			return self.getScopeByVar(node.value)[node.value]
 		elif isinstance(node, ASTExpNode):
 			left = self.evalIntExpr(node.left)
 			right = self.evalIntExpr(node.right)
@@ -79,23 +78,27 @@ class Interpreter(object):
 				self.interpret(True, node.false)
 	
 	def evalWhile(self, node):
+		self.scopeDescend()
 		condition = self.evalIntExpr(node.condition)
 		self.typeCheck(condition, True)
 		while condition:
 			self.interpret(True, node.body)
 			condition = self.evalIntExpr(node.condition)
+		self.scopeAscend()
 	
 	def evalFor(self, node):
+		self.scopeDescend()
 		nodes = []
 		nodes.append(node.init)
 		self.interpret(False, nodes)
 		condition = self.evalIntExpr(node.condition)
 		while condition:
-			self.interpret(True, node.body)
+			self.interpret(False, node.body)
 			nodes = []
 			nodes.append(node.step)
 			self.interpret(False, nodes)
 			condition = self.evalIntExpr(node.condition)
+		self.scopeAscend()
 
 	def typeCheck(self, old, new):
 		if type(old) != type(new):
@@ -103,18 +106,17 @@ class Interpreter(object):
 
 	def interpret(self, descend, nodes):
 		if(descend):
-			scope = self.getCurrentScope()
-			scope['locals'] = {}
-			self.depth += 1
+			self.scopeDescend()
 		for node in nodes:
 			if isinstance(node, ASTVAR):
 				value = self.evalIntExpr(node.value)
 				localscope = self.getCurrentScope()
 				if not node.new:
+					localscope = self.getScopeByVar(node.identifier)
 					self.typeCheck(localscope[node.identifier], value)
 					localscope[node.identifier] = value;
 				else:
-					self.getCurrentScope()[node.identifier] = value
+					localscope[node.identifier] = value
 			elif isinstance(node, ASTPrint):
 				if node.type == INT:
 					print(node.value)
@@ -126,10 +128,8 @@ class Interpreter(object):
 				self.evalWhile(node)
 			elif isinstance(node, ASTFor):
 				self.evalFor(node)
-		if(self.depth >= 0 and descend):
-			self.depth -= 1
-			scope = self.getCurrentScope()
-			scope.pop('locals')
+		if descend:
+			self.scopeAscend()
 
 	def getCurrentScope(self):
 		res = self.globals
@@ -150,3 +150,14 @@ class Interpreter(object):
 				res = scope;
 			
 		return res;
+
+	def scopeDescend(self):
+		scope = self.getCurrentScope()
+		scope['locals'] = {}
+		self.depth += 1
+
+	def scopeAscend(self):
+		if self.depth > 0:
+			self.depth -= 1
+			scope = self.getCurrentScope()
+			scope.pop('locals')

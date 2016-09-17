@@ -97,8 +97,12 @@ class Parser(object):
 			return ASTPrint(IDENT, name)
 
 	def compound(self):
-		while self.current_token is None:
+		i = 0
+		while self.current_token.type == EOF:
 			self.current_token = self.lexer.get_next_token()
+			i += 1
+			if i > 20:
+				break
 		if self.current_token.type == COMPOUNDL:
 			result = self.parse()
 		else:

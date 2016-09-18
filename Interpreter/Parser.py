@@ -1,6 +1,7 @@
 from Lexer import *
 from AST.Expr import *
 from AST.Command import *
+from AST.LangObjects import *
 
 class Parser(object):
 	def __init__(self, lexer):
@@ -143,6 +144,13 @@ class Parser(object):
 		body = self.compound()
 		return ASTFor(init, condition, step, body)
 
+	def namespace(self):
+		self.eat(NAMESPACE)
+		if self.current_token.type == IDENT:
+			name = self.current_token.value
+		self.eat(IDENT)
+		body = self.parse()
+		return ASTNamespace(name, body)
 		
 	def parse(self, singlec = False):
 		roots = []
@@ -167,6 +175,10 @@ class Parser(object):
 					return roots
 			elif self.current_token.type == FOR:
 				roots.append(self.forloop())
+				if(self.current_token.type == EOF):
+					return roots
+			elif self.current_token.type == NAMESPACE:
+				roots.append(self.namespace())
 				if(self.current_token.type == EOF):
 					return roots
 			if self.current_token.type == COMPOUNDR:

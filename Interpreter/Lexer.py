@@ -1,6 +1,7 @@
 from Token import *
 #Reserved words
 VAR, PRINT, IF, ELIF, ELSE, FOR, WHILE, FUNCTION, RETURN = "VAR", "PRINT", "IF", "ELIF", "ELSE", "FOR", "WHILE", "FUNCTION", "RETURN"
+NAMESPACE = "NAMESPACE"
 #Operations
 ADDOP, MULOP, CMPOP, BOOLOP = "ADDOP", "MULOP", "CMPOP", "BOOLOP"
 #Terminals
@@ -11,15 +12,16 @@ INT, BRACKETL, BRACKETR, COMPOUNDL, COMPOUNDR, EQUALS, SQUARER, SQUAREL = "INT",
 EOF, EOC = "EOF", "EOC"
 
 RESERVED_WORDS = {
-	VAR		: Token(VAR, "var"),
-	PRINT	: Token(PRINT, "print"),
-	IF		: Token(IF, "if"),
-	ELIF	: Token(ELIF, "elif"),
-	ELSE	: Token(ELSE, "else"),
-	FOR		: Token(FOR, "for"),
-	WHILE	: Token(WHILE, "while"),
-	FUNCTION : Token(FUNCTION, "function"),
-	RETURN	: Token(RETURN, "return")
+	VAR			: Token(VAR, "var"),
+	PRINT		: Token(PRINT, "print"),
+	IF			: Token(IF, "if"),
+	ELIF		: Token(ELIF, "elif"),
+	ELSE		: Token(ELSE, "else"),
+	FOR			: Token(FOR, "for"),
+	WHILE		: Token(WHILE, "while"),
+	FUNCTION	: Token(FUNCTION, "function"),
+	RETURN		: Token(RETURN, "return"),
+	NAMESPACE	: Token(NAMESPACE, "function")
 	}
 
 SPECIAL_CHAR_SINGLE = [';', '(', ')', '{', '}', '[', ']']

@@ -40,7 +40,13 @@
     <Compile Include="AST\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Interpreter.py" />
+    <Compile Include="Interpreter\Interpreter.py" />
+    <Compile Include="Interpreter\LangObjects.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Interpreter\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Lexer.py">
       <SubType>Code</SubType>
     </Compile>
@@ -59,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AST\" />
+    <Folder Include="Interpreter\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

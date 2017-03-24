@@ -1,4 +1,4 @@
-from Interpreter import *
+from Interpreter.Interpreter import *
 
 if __name__ == '__main__':
     interpret = Interpreter()
